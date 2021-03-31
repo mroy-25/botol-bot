@@ -48,7 +48,7 @@ async function starts() {
         console.log('[', color('!', 'red') ,']', 'Please, scan the QR code!')
     })
 
-    fs.existsSync('./Midnight.json') && botol.loadAuthInfo('./Midnight.json')
+    fs.existsSync('./session.json') && botol.loadAuthInfo('./session.json')
     botol.on('connecting', () => {
         console.log(color('Connecting to WhatsApp...', 'green'))
     })
@@ -57,7 +57,7 @@ async function starts() {
         lolcatjs.fromString(figlet.textSync('Welcome', 'Larry 3D'))
     })
     await botol.connect({timeoutMs: 30*1000})
-        fs.writeFileSync('./Midnight.json', JSON.stringify(botol.base64EncodedAuthInfo(), null, '\t'))
+        fs.writeFileSync('./session.json', JSON.stringify(botol.base64EncodedAuthInfo(), null, '\t'))
 
     botol.on('chat-update', async (mek) => {
         try {
@@ -119,7 +119,8 @@ async function starts() {
                         case 'speed':
                             reply(`Pong, *${processTime(mek.messageTimestamp, moment())} _Seconds_*`)
                             break
-                    case 'help': {
+                    case 'help': 
+                    case 'menu': {
                         const teks = {
                             text: menuId.Help(prefix),
                             contextInfo: {
@@ -432,7 +433,7 @@ async function starts() {
                     teks = args.join(" ")
                     teks += "\n\n"
                     for (let mem of groupMembers) {
-                        teks += `# @${mem.jid.split("@")[0]}\n`
+                        teks += `• @${mem.jid.split("@")[0]}\n`
                         members_id.push(mem.jid)
                     }
                     mentions(teks, members_id)
