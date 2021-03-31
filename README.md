@@ -3,7 +3,7 @@
 
 ## Cloning
 ```sh
-git clone https://github.com/BotWAIndo/selfbot-baileys.git
+git clone https://github.com/progsysdriver/botol-bot
 cd selfbot-baileys
 ```
 
