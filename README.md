@@ -4,7 +4,7 @@
 ## Cloning
 ```sh
 git clone https://github.com/progsysdriver/botol-bot
-cd selfbot-baileys
+cd botol-bot
 ```
 
 ## Installation Termux or Ubuntu/Debian
@@ -22,4 +22,4 @@ node index.js
 
 ## Terima Kasih
 - [MhankBarBar](https://github.com/github.com/MhankBarBar)
-- [adiwajshing](https://github.com/adiwajshing)
+- [Adiwajshing](https://github.com/adiwajshing)
