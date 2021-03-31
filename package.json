@@ -10,12 +10,12 @@
   "author": "Angga Surya",
   "repository": {
     "type": "git",
-    "url": "https://github.com/BotWAIndo/selfbot-baileys.git"
+    "url": "https://github.com/progsysdriver/botol-bot"
   },
   "bugs": {
-    "url": "https://github.com/BotWAIndo/selfbot-baileys/issues"
+    "url": "https://github.com/progsysdriver/botol-bot/issues"
   },
-  "homepage": "https://github.com/BotWAIndo/selfbot-baileys",
+  "homepage": "https://github.com/progsysdriver/botol-bot",
   "keywords": [],
   "license": "MIT",
   "dependencies": {
