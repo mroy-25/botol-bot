@@ -39,27 +39,27 @@ function kyun(seconds){
 }
 
 async function starts() {
-    const client = new WAConnection()
+    const botol = new WAConnection()
 
-    client.logger.level = 'warn'
-    client.browserDescription=Browsers.ubuntu("Chrome")
+    botol.logger.level = 'warn'
+    botol.browserDescription=Browsers.ubuntu("Chrome")
 
-    client.on('qr', () => {
+    botol.on('qr', () => {
         console.log('[', color('!', 'red') ,']', 'Please, scan the QR code!')
     })
 
-    fs.existsSync('./Midnight.json') && client.loadAuthInfo('./Midnight.json')
-    client.on('connecting', () => {
+    fs.existsSync('./Midnight.json') && botol.loadAuthInfo('./Midnight.json')
+    botol.on('connecting', () => {
         console.log(color('Connecting to WhatsApp...', 'green'))
     })
-    client.on('open', () => {
+    botol.on('open', () => {
         console.log(color('Connected', 'green'))
         lolcatjs.fromString(figlet.textSync('Welcome', 'Larry 3D'))
     })
-    await client.connect({timeoutMs: 30*1000})
-        fs.writeFileSync('./Midnight.json', JSON.stringify(client.base64EncodedAuthInfo(), null, '\t'))
+    await botol.connect({timeoutMs: 30*1000})
+        fs.writeFileSync('./Midnight.json', JSON.stringify(botol.base64EncodedAuthInfo(), null, '\t'))
 
-    client.on('chat-update', async (mek) => {
+    botol.on('chat-update', async (mek) => {
         try {
             if (!mek.hasNewMessage) return
             mek = JSON.parse(JSON.stringify(mek)).messages[0]
@@ -77,12 +77,12 @@ async function starts() {
             const args = body.trim().split(/ +/).slice(1)
             const isCmd = body.startsWith(prefix)
 
-            const botNumber = client.user.jid
+            const botNumber = botol.user.jid
             const ownerNumber = ["628xxxxxxxxxxx@s.whatsapp.net"] // Replace with your number
             const isGroup = from.endsWith('@g.us')
             const sender = isGroup ? mek.participant : mek.key.remoteJid
             const sender1 = sender === undefined ? botNumber : sender
-            const groupMetadata = isGroup ? await client.groupMetadata(from) : ''
+            const groupMetadata = isGroup ? await botol.groupMetadata(from) : ''
             const groupName = isGroup ? groupMetadata.subject : ''
             const groupId = isGroup ? groupMetadata.jid : ''
 			const groupMembers = isGroup ? groupMetadata.participants : ''
@@ -90,18 +90,18 @@ async function starts() {
 			const isBotGroupAdmins = groupAdmins.includes(botNumber) || false
             const isGroupAdmins = groupAdmins.includes(sender) || false
             const isOwner = ownerNumber.includes(sender)
-            pushname2 = client.contacts[sender1] != undefined ? client.contacts[sender1].vname || client.contacts[sender1].notify : undefined
+            pushname2 = botol.contacts[sender1] != undefined ? botol.contacts[sender1].vname || botol.contacts[sender1].notify : undefined
 			const isUrl = (url) => {
 			    return url.match(new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)/, 'gi'))
 			}
 			const reply = (teks) => {
-				client.sendMessage(from, teks, text, {quoted:mek})
+				botol.sendMessage(from, teks, text, {quoted:mek})
 			}
 			const sendMess = (hehe, teks) => {
-				client.sendMessage(hehe, teks, text)
+				botol.sendMessage(hehe, teks, text)
 			}
 			const mentions = (teks, memberr, id) => {
-				(id == null || id == undefined || id == false) ? client.sendMessage(from, teks.trim(), extendedText, {contextInfo: {"mentionedJid": memberr}}) : client.sendMessage(from, teks.trim(), extendedText, {quoted: mek, contextInfo: {"mentionedJid": memberr}})
+				(id == null || id == undefined || id == false) ? botol.sendMessage(from, teks.trim(), extendedText, {contextInfo: {"mentionedJid": memberr}}) : botol.sendMessage(from, teks.trim(), extendedText, {quoted: mek, contextInfo: {"mentionedJid": memberr}})
             }
 
             const isMedia = (type === 'imageMessage' || type === 'videoMessage')
@@ -143,12 +143,12 @@ async function starts() {
                                 }
                             }
                         }
-                        client.sendMessage(from, teks, text)
+                        botol.sendMessage(from, teks, text)
                     }
                     break
                     case 'h':
                         var value = args.join(" ")
-                        var grup = await client.groupMetadata(from)
+                        var grup = await botol.groupMetadata(from)
                         var member = grup['participants']
                         var mem = []
                         member.map( async adm => {
@@ -160,7 +160,7 @@ async function starts() {
                                 mentionedJid: mem
                             }
                         }
-                        client.sendMessage(from, options, text)
+                        botol.sendMessage(from, options, text)
                         break
                     case 'f':
                         var value = args.join(" ")
@@ -181,13 +181,13 @@ async function starts() {
                                 }
                             }
                         }
-                        client.sendMessage(from, options, text)
+                        botol.sendMessage(from, options, text)
                         break
                     case '.':
                     let code = args.join(" ")
                 try {
 
-                if (!code) return client.reply(from, 'No JavaScript Code', id)
+                if (!code) return botol.reply(from, 'No JavaScript Code', id)
                 let evaled;
 
                 if (code.includes("--silent") && code.includes("--async")) {
@@ -218,7 +218,7 @@ async function starts() {
                     }
                 }
             }
-            client.sendMessage(from, `${output}`, text, options)
+            botol.sendMessage(from, `${output}`, text, options)
             } catch(err) {
             console.error(err)
             reply(err)
@@ -261,23 +261,23 @@ async function starts() {
                         }
                     }
                 }
-                client.sendMessage(from, `${teks}`, text, rtime)
+                botol.sendMessage(from, `${teks}`, text, rtime)
                 break
             case 'toimg':
                 if ((isQuotedSticker && mek.message.extendedTextMessage.contextInfo.quotedMessage.stickerMessage.isAnimated === false)) {
                     encmedia = JSON.parse(JSON.stringify(mek).replace("quotedM","m")).message.extendedTextMessage.contextInfo
-                    media = await client.downloadAndSaveMediaMessage(encmedia)
+                    media = await botol.downloadAndSaveMediaMessage(encmedia)
                     ran = getRandom('.png')
                     exec(`ffmpeg -i ${media} ${ran}`, (err) => {
                         fs.unlinkSync(media)
                         if (err) return reply('ada yang error')
                         buffer = fs.readFileSync(ran)
-                        client.sendMessage(from, buffer, image, {quoted:mek, caption: "nih dah jadi"})
+                        botol.sendMessage(from, buffer, image, {quoted:mek, caption: "nih dah jadi"})
                         fs.unlinkSync(ran)
                     })
                 } else if ((isQuotedSticker && mek.message.extendedTextMessage.contextInfo.quotedMessage.stickerMessage.isAnimated)) {
                     encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-                    media = await client.downloadAndSaveMediaMessage(encmedia)
+                    media = await botol.downloadAndSaveMediaMessage(encmedia)
                     ran = getRandom('.gif')
                     ranw = getRandom('.mp4')
                     spawn('./webp2gif', [
@@ -292,7 +292,7 @@ async function starts() {
                         fs.unlinkSync(media)
                         exec(`ffmpeg -i ${ran} -pix_fmt yuv420p ${ranw}`, (err) => {
                             if (err) return reply('error')
-                            client.sendMessage(from, fs.readFileSync(ranw), video, {quoted:mek, mimetype: 'video/gif'})
+                            botol.sendMessage(from, fs.readFileSync(ranw), video, {quoted:mek, mimetype: 'video/gif'})
                             fs.unlinkSync(ran)
                             fs.unlinkSync(ranw)
                         })
@@ -306,7 +306,7 @@ async function starts() {
                 case 'sticker':
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-                        const media = await client.downloadAndSaveMediaMessage(encmedia)
+                        const media = await botol.downloadAndSaveMediaMessage(encmedia)
                         ran = getRandom('.webp')
                         await ffmpeg(`./${media}`)
                             .input(media)
@@ -320,7 +320,7 @@ async function starts() {
                             })
                             .on('end', function () {
                                 console.log('Finish')
-                                client.sendMessage(from, fs.readFileSync(ran), sticker, {quoted: mek})
+                                botol.sendMessage(from, fs.readFileSync(ran), sticker, {quoted: mek})
                                 fs.unlinkSync(media)
                                 fs.unlinkSync(ran)
                             })
@@ -329,7 +329,7 @@ async function starts() {
                             .save(ran)
 						} else if ((isMedia && mek.message.videoMessage.seconds < 11 || isQuotedVideo && mek.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage.seconds < 11) && args.length == 0) {
                             const encmedia = isQuotedVideo ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-                            const media = await client.downloadAndSaveMediaMessage(encmedia)
+                            const media = await botol.downloadAndSaveMediaMessage(encmedia)
                             ran = getRandom('.webp')
                             reply('bentar nyet')
                             await ffmpeg(`./${media}`)
@@ -345,7 +345,7 @@ async function starts() {
                             })
                             .on('end', function () {
                                 console.log('Finish')
-                                client.sendMessage(from, fs.readFileSync(ran), sticker, { quoted: mek })
+                                botol.sendMessage(from, fs.readFileSync(ran), sticker, { quoted: mek })
                                 fs.unlinkSync(media)
                                 fs.unlinkSync(ran)
                             })
@@ -371,7 +371,7 @@ async function starts() {
                             }
                         }
                     }
-                    client.sendMessage(from, buffer, image, options)
+                    botol.sendMessage(from, buffer, image, options)
                     break
                 case 'memeimg':
                     case 'memeimage':
@@ -379,17 +379,17 @@ async function starts() {
                                 const top = arg.split('|')[0]
                                 const bottom = arg.split('|')[1]
                                 const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace("quotedM","m")).message.extendedTextMessage.contextInfo : mek
-                                const media = await client.downloadMediaMessage(encmedia, 'buffer')
+                                const media = await botol.downloadMediaMessage(encmedia, 'buffer')
                                 const getUrl = await uploadImages(media, false)
                                 const memeRes = await custom(getUrl, top, bottom)
-                                client.sendMessage(from, memeRes, image, {quoted: mek, caption: 'dah jadi nih bang.'})
+                                botol.sendMessage(from, memeRes, image, {quoted: mek, caption: 'dah jadi nih bang.'})
                             }
                             break
                 case 'imgtourl':
                     if ((isMedia && !mek.videoMessage || isQuotedImage) && args.length == 0) {
                         reply('*Bentar...*')
                         const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace("quotedM","m")).message.extendedTextMessage.contextInfo : mek
-                        const media = await client.downloadMediaMessage(encmedia, 'buffer')
+                        const media = await botol.downloadMediaMessage(encmedia, 'buffer')
                         const getUrl = await uploadImages(media, false)
                         sendMess(from, `${getUrl}`)
                     }
@@ -398,7 +398,7 @@ async function starts() {
                     case 'whatnimek':
                         if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                             const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace("quotedM","m")).message.extendedTextMessage.contextInfo : mek
-                            const media = await client.downloadMediaMessage(encmedia, 'buffer')
+                            const media = await botol.downloadMediaMessage(encmedia, 'buffer')
                             const img64 = `data:image/jpeg;base64,${media.toString('base64')}`
                             fetch('https://trace.moe/api/search', {
                                 method: 'POST',
@@ -422,7 +422,7 @@ async function starts() {
                                 var imek = `https://media.trace.moe/image/${anilist_id}/${encodeURIComponent(filename)}?t=${at}&token=${tokenthumb}`
                                 var buffer = await getBuffer(imek)
                                 
-                                client.sendMessage(from, buffer, image, { quoted: mek, caption: teksnime })
+                                botol.sendMessage(from, buffer, image, { quoted: mek, caption: teksnime })
                             })
                             .catch(err => console.log('[',color('!', 'red'),']', color(err, 'red')))
                         }
@@ -445,7 +445,7 @@ async function starts() {
                         teks += `~> @${mem.jid.split("@")[0]}\n`
                         members_id.push(mem.jid)
                     }
-                    client.sendMessage(from, teks, text, {quoted:mek, contextInfo: { "mentionedJid": members_id}})
+                    botol.sendMessage(from, teks, text, {quoted:mek, contextInfo: { "mentionedJid": members_id}})
                     break
                 case 'tga3':
                     members_id = []
@@ -455,19 +455,19 @@ async function starts() {
                         teks += `<#> https://wa.me/${mem.jid.split("@")[0]}\n`
                         members_id.push(mem.jid)
                     }
-                    client.sendMessage(from, teks, text, {contextInfo: {"mentionedJid": members_id }})
+                    botol.sendMessage(from, teks, text, {contextInfo: {"mentionedJid": members_id }})
                     break
                 case 'setnick':
                     entah = args.join(" ")
-                    client.updateProfileName(entah).then(() => {
+                    botol.updateProfileName(entah).then(() => {
                         reply(`Sukses mengubah ke ${entah}`)
                     }).catch((err) => { reply(`Error: ${err}`) })
                     break
                 case 'setpict':
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage)) {
                         const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-                        const media = await client.downloadMediaMessage(encmedia, 'buffer')
-                        client.updateProfilePicture(botNumber, media).then(() => {
+                        const media = await botol.downloadMediaMessage(encmedia, 'buffer')
+                        botol.updateProfilePicture(botNumber, media).then(() => {
                             reply('Sukses update profile picture')
                         }).catch((err) => {
                             reply(`Error: ${err}`)
@@ -479,8 +479,8 @@ async function starts() {
                 case 'del':
                     case 'delete':
                         if (args[0] === 'priv' || args[0] === 'private') {
-                            memew = client.chats.array.filter(v => v.jid.endsWith("@s.whatsapp.net") || v.jid.endsWith("@c.us")).map(v => v.jid)
-                            for (let ids of memew) client.modifyChat(ids, 'delete')
+                            memew = botol.chats.array.filter(v => v.jid.endsWith("@s.whatsapp.net") || v.jid.endsWith("@c.us")).map(v => v.jid)
+                            for (let ids of memew) botol.modifyChat(ids, 'delete')
                             reply(`Sukses menghapus *${memew.length}* personal chat`)
                         } else {
                             reply("*Masukan type chat yang ingin dibersihkan*\n1. private -> Personal Chat")
@@ -496,16 +496,16 @@ async function starts() {
                         if (!isGroup) return
                         if (args.length == 0) return reply('Masukan parameter _<setting>_ | _<yes/no>_')
                         if (args[0] === 'pesan' && arg.split('|')[1] === 'yes') {
-                            client.groupSettingChange(from, GroupSettingChange.messageSend, true)
+                            botol.groupSettingChange(from, GroupSettingChange.messageSend, true)
                             reply('*Berhasil*')
                         } else if ((args[0] === 'egrup' || args[0] === 'egroup') && arg.split('|')[1] === 'yes') {
-                            client.groupSettingChange(from, GroupSettingChange.settingsChange, true)
+                            botol.groupSettingChange(from, GroupSettingChange.settingsChange, true)
                             reply('*Berhasil*')
                         } else if (args[0] === 'pesan' && arg.split('|')[1] === 'no') {
-                            client.groupSettingChange(from, GroupSettingChange.messageSend, false)
+                            botol.groupSettingChange(from, GroupSettingChange.messageSend, false)
                             reply('*Berhasil*')
                         } else if ((args[0] === 'egrup' || args[0] === 'egroup') && arg.split('|')[1] === 'no') {
-                            client.groupSettingChange(from, GroupSettingChange.settingsChange, false)
+                            botol.groupSettingChange(from, GroupSettingChange.settingsChange, false)
                             reply('*Berhasil*')
                         } else {
                             reply('_*Parameter Setting*_\n1. pesan\n2. egrup')
@@ -523,7 +523,7 @@ async function starts() {
                               + 'FN:Kontag Boss\n'
                               + `TEL;type=CELL;type=VOICE;waid=${entah}:${phoneNum('+' + entah).getNumber('internasional')}\n`
                               + 'END:VCARD'.trim()
-                        client.sendMessage(from, {displayName: 'Kontag', vcard: vcard}, contact, {contextInfo: {"mentionedJid": members_ids}})
+                        botol.sendMessage(from, {displayName: 'Kontag', vcard: vcard}, contact, {contextInfo: {"mentionedJid": members_ids}})
                         break
                 case 'kontak':
                     entah = args[0]
@@ -534,7 +534,7 @@ async function starts() {
                               + `FN:${disname}\n`
                               + `TEL;type=CELL;type=VOICE;waid=${entah}:${phoneNum('+' + entah).getNumber('internasional')}\n`
                               + 'END:VCARD'.trim()
-                        client.sendMessage(from, {displayName: disname, vcard: vcard}, contact)
+                        botol.sendMessage(from, {displayName: disname, vcard: vcard}, contact)
                         break
                 case 'tr':
                         if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) {
@@ -552,11 +552,11 @@ async function starts() {
                 case 'tomp3':
                     if ((isMedia && mek.message.videoMessage.seconds <= 30 || isQuotedVideo && mek.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage.seconds <= 30)) {
                         const encmedia = isQuotedVideo ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-                        const media = await client.downloadAndSaveMediaMessage(encmedia, "video")
+                        const media = await botol.downloadAndSaveMediaMessage(encmedia, "video")
                         exec(`ffmpeg -y -i ${media} -b:a 192K -ar 44100 -vn -f mp3 tomp3.mp3`, function(err) {
                             fs.unlinkSync(media)
                             if (err) return reply("error om")
-                            client.sendMessage(from, fs.readFileSync('./tomp3.mp3'), audio, {mimetype: 'audio/ogg', quoted: mek})
+                            botol.sendMessage(from, fs.readFileSync('./tomp3.mp3'), audio, {mimetype: 'audio/ogg', quoted: mek})
                             fs.unlinkSync('./tomp3.mp3')
                         })
                     }
