@@ -27,11 +27,11 @@ Just for fun 😎
 ## Ganti prefix, Fake reply, Target fake, Gambar
 ```sh
 prefix = '.'
-fake = 'Botol Bot'
-numbernya = '0'
-let gambar64 = "" || fs.readFileSync('./media/images/9739.png')
+fake = 'BOTOL BOT'
+numbernye = '0'
 ```
-Di [index.js](https://github.com/progsysdriver/botol-bot/blob/main/index.js#L28)
+
+Di [index.js](https://github.com/progsysdriver/botol-bot/blob/5e2230786d9d20983a5e7eea968006d782d92958/index.js#L61)
 
 ## Cloning
 ```sh
@@ -40,11 +40,24 @@ cd botol-bot
 ```
 
 ## Installation Termux or Ubuntu/Debian
-
 ```sh
-pkg install -y ffmpeg imagemagick libwebp
-wget https://git.io/webp2gif && chmod +x webp2gif
+apt-get update
+apt-get upgrade
+apt-get install nodejs
+apt-get install libwebp
+apt-get install mc
+apt-get install ffmpeg
+apt-get install wget
+apt-get install tesseract
+apt-get install nmap
+apt-get install python
+wget -O ~/../usr/share/tessdata/ind.traineddata "https://github.com/tesseract-ocr/tessdata/blob/master/ind.traineddata?raw=true"
 npm install
+```
+## Or Installation
+```sh
+chmod +x install.sh
+./install.sh
 ```
 
 ## Run Bot
@@ -82,6 +95,8 @@ node index.js
 |       ☑      | Translate  |
 |       ☑      | Sticker Thug life  |
 |       ☑      | Sticker To be continued |
+|       ☑      | Sticker wasted |
+|       ☑      | Sticker trigger |
 |       ☑      | Photo Couple  |
 
 ## Terima Kasih
