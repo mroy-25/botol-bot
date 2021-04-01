@@ -84,85 +84,69 @@ today = dd + '/' + mm + '/' + yyyy;
 return today;
  }
 
-const botol = new WAConnection()
+async function starts() {
+	const botol = new WAConnection()
+	botol.logger.level = 'warn'
+	console.log(banner.string)
+	botol.on('qr', () => {
+		console.log(color('[','white'), color('!','red'), color(']','white'), color(' Scan the qr code above'))
+	})
 
-botol.on('qr', qr => {
-	qrcode.generate(qr, { small: true })
-	console.log(`[ ${time} ] QR code is ready`)
-})
+	fs.existsSync('./session.json') && botol.loadAuthInfo('./session.json')
+	botol.on('connecting', () => {
+		start('2', 'Connecting...')
+	})
+	botol.on('open', () => {
+		success('2', 'Connected')
+	})
+	await botol.connect({timeoutMs: 30*1000})
+        fs.writeFileSync('./session.json', JSON.stringify(botol.base64EncodedAuthInfo(), null, '\t'))
 
-botol.on('credentials-updated', () => {
-	const authInfo = botol.base64EncodedAuthInfo()
+	botol.on('group-participants-update', async (anu) => {
+		if (!welkom.includes(anu.jid)) return
+		try {
+			const mdata = await botol.groupMetadata(anu.jid)
+			console.log(anu)
+			if (anu.action == 'add') {
+				num = anu.participants[0]
+				try {
+					ppimg = await botol.getProfilePicture(`${anu.participants[0].split('@')[0]}@c.us`)
+				} catch {
+					ppimg = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
+				}
+				teks = `Halo @${num.split('@')[0]}\nSelamat datang di group *${mdata.subject}*`
+				let buff = await getBuffer(ppimg)
+				botol.sendMessage(mdata.id, buff, MessageType.image, {caption: teks, contextInfo: {"mentionedJid": [num]}})
+			} else if (anu.action == 'remove') {
+				num = anu.participants[0]
+				try {
+					ppimg = await botol.getProfilePicture(`${num.split('@')[0]}@c.us`)
+				} catch {
+					ppimg = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
+				}
+				teks = `Sayonara @${num.split('@')[0]}👋`
+				let buff = await getBuffer(ppimg)
+				botol.sendMessage(mdata.id, buff, MessageType.image, {caption: teks, contextInfo: {"mentionedJid": [num]}})
+			}
+		} catch (e) {
+			console.log('Error : %s', color(e, 'red'))
+		}
+	})
 
-	fs.writeFileSync('./session.json', JSON.stringify(authInfo, null, '\t'))
-})
-
-fs.existsSync('./session.json') && botol.loadAuthInfo('./session.json')
-
-botol.connect();
-
-botol.on('CB:Blocklist', json => {
-	if (blocked.length > 2) return
-	for (let i of json[1].blocklist) {
-		blocked.push(i.replace('c.us', 's.whatsapp.net'))
-	}
-})
-
-// WELKOM
-botol.on('group-participants-update', async (anu) => {
-      if (!welkom.includes(anu.jid)) return
-      try {
-         const mdata = await botol.groupMetadata(anu.jid)
-         console.log(anu)
-         if (anu.action == 'add') {
-            num = anu.participants[0]
-            try {
-               ppimg = await botol.getProfilePicture(`${anu.participants[0].split('@')[0]}@c.us`)
-            } catch {
-               ppimg = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
-            }
-            teks = `Halo @${num.split('@')[0]}👋
-Selamat datang di Grup
-*${mdata.subject}*
-
-Intro Member Baru
-
-• 1. Nama:
-• 2. Umur:
-• 3. Status:
-• 4. Askot:
-
-Sering nimbrung dan baca rules grup`
-            let bufft = await getBuffer(ppimg)
-            botol.sendMessage(mdata.id, bufft, MessageType.image, {caption: teks, contextInfo: {"mentionedJid": [num]}})
-	}
-     } catch (e) {
-         console.log('Error : %s', color(e, 'red'))
-      }
-   })
-botol.on('group-participants-update', async (anu) => {
-      if (!left.includes(anu.jid)) return
-      try {
-	const mdata = await botol.groupMetadata(anu.jid)
-         console.log(anu)
-         if (anu.action == 'remove') {
-            num = anu.participants[0]
-            teks = `Kasian @${num.split('@')[0]} mana masih muda`
-            botol.sendMessage(mdata.id, teks, MessageType.text, {contextInfo: {"mentionedJid": [num]}})
-         }
-     } catch (e) {
-         console.log('Error : %s', color(e, 'red'))
-      }
-   })
-
+	botol.on('CB:Blocklist', json => {
+            if (blocked.length > 2) return
+	    for (let i of json[1].blocklist) {
+	    	blocked.push(i.replace('c.us','s.whatsapp.net'))
+	    }
+	})
 
 botol.on('chat-update', async (mek) => {
 		try {
-      if (!mek.hasNewMessage) return
-      mek = mek.messages.all()[0]
+            if (!mek.hasNewMessage) return
+            mek = mek.messages.all()[0]
 			if (!mek.message) return
 			if (mek.key && mek.key.remoteJid == 'status@broadcast') return
-			if (mek.key.fromMe) return
+			if (!mek.key.fromMe) return
 			global.prefix
 			global.blocked
 			const content = JSON.stringify(mek.message)
@@ -223,7 +207,7 @@ botol.on('chat-update', async (mek) => {
 			if (authorname != undefined) { } else { authorname = groupName }	
 			
 			function addMetadata(packname, author) {	
-				if (!packname) packname = 'WABot'; if (!author) author = 'Bot';	
+				if (!packname) packname = `${config.packname}`; if (!author) author = `${config.author}`;	
 				author = author.replace(/[^a-zA-Z0-9]/g, '');	
 				let name = `${author}_${packname}`
 				if (fs.existsSync(`./src/stickers/${name}.exif`)) return `./src/stickers/${name}.exif`
@@ -321,10 +305,35 @@ botol.on('chat-update', async (mek) => {
 		}
 
 			switch (command) {
-case 'ping':
-                        case 'speed':
-                            reply(`Pong, *${processTime(mek.messageTimestamp, moment())} _Seconds_*`)
-                            break
+                     case 'speed':
+                    case 'ping':
+            					const timestamp = speed();
+            					const latensi = speed() - timestamp
+            					exec(`neofetch --stdout`, (error, stdout, stderr) => {
+            						const child = stdout.toString('utf-8')
+            						const teks = child.replace(/Memory:/, "Ram:")
+            						const pingnya = `${teks}📶 Speed: ${latensi.toFixed(4)} Second`
+            						fakestatus(pingnya)
+            					})
+            					break
+            				case 'ocr':
+            				if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
+            						const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
+            						const media = await botol.downloadAndSaveMediaMessage(encmedia)
+            						reply(mess.wait)
+            						await recognize(media, {lang: 'eng+ind', oem: 1, psm: 3})
+            							.then(teks => {
+            								reply(teks.trim())
+            								fs.unlinkSync(media)
+            							})
+            							.catch(err => {
+            								reply(err.message)
+            								fs.unlinkSync(media)
+            							})
+            					} else {
+            						reply(`Kirim foto dengan caption ${prefix}ocr`)
+            					}
+            					break
                     case 'help': 
                     case 'menu': {
                         const time2 = moment().tz('Asia/Jakarta').format('HH:mm:ss')
@@ -347,21 +356,22 @@ case 'ping':
                                                 var sselamat = 'SELAMAT MALAM'
                                          }
                                          var d = new Date
-                                            var locale = 'id'                                                                                                                            var gmt = new Date(0).getTime() - new Date('1 January 1970').getTime()
-                                            var weton = ['Pahing', 'Pon','Wage','Kliwon','Legi'][Math.floor(((d * 1) + gmt) / 84600000) % 5]                                             var week = d.toLocaleDateString(locale, { weekday: 'long' })
+                                            var locale = 'id'
+                                            var gmt = new Date(0).getTime() - new Date('1 January 1970').getTime()
+                                            var weton = ['Pahing', 'Pon','Wage','Kliwon','Legi'][Math.floor(((d * 1) + gmt) / 84600000) % 5]
+                                            var week = d.toLocaleDateString(locale, { weekday: 'long' })
                                             var date = d.toLocaleDateString(locale, {                                                                                                      day: 'numeric',
                                               month: 'long',
                                               year: 'numeric'
                                             })
                                         var waktu = moment().tz('Asia/Jakarta').format("HH : mm : ss")
-                        menunye = `*${sselamat} ${sender.split('@')[0]}*
+                        menunye = `*${sselamat}* *${sender.split('@')[0]}*
 
 • *${week} ${weton}*
 • *${date}*
 • *${today(time)}*
 • *${waktu}    WIB*
 ${readmore}
-
 *BOTOL BOT MENU*
 
 01. ${prefix}h -> hidetag
@@ -394,30 +404,7 @@ ${readmore}
 28. ${prefix}tobecontinue -> to be continued generator
 29. ${prefix}thuglife -> Thug life Generator
 27. ${prefix}trigger -> Trigger generator`
-                        const teks = {
-                            text: menunye,
-                            contextInfo: {
-                                participant: `${nomornye}@s.whatsapp.net`,
-                                remoteJid: "status@broadcast",
-                                quotedMessage: {
-                                    productMessage: {
-                                        product: {
-                                            currencyCode: "USD",
-                                            description: fake,
-                                            title: fake,
-                                            priceAmount1000: "999999999",
-                                            productImageCount: 1,
-                                            productImage: {
-                                                mimetype: "image/png",
-                                                jpegThumbnail: gambar64
-                                            }
-                                        },
-                                        businessOwnerJid: "0@s.whatsapp.net"
-                                    }
-                                }
-                            }
-                        }
-                        botol.sendMessage(from, teks, text)
+              fakestatus(menunye)
                     }
                     break
            case 'owner':
@@ -511,6 +498,15 @@ ${readmore}
             else return text;
             }
             break
+            case 'setthumb':
+            		if (!isQuotedImage) return reply('Reply image!')
+            	        const messimagethumb = JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo
+            		const downiamgethumb = await botol.downloadMediaMessage(messimagethumb)
+            		fs.unlinkSync(`./src/image/thumbnail.jpeg`)
+            	        await sleep(2000)
+            		fs.writeFileSync(`./src/image/thumbnail.jpeg`, downiamgethumb)
+            		fakestatus('Succes')
+            		break
             case 'setprefix':
                 if (args.length < 1) return
                 prefix = args[0]
@@ -587,7 +583,7 @@ ${readmore}
                 case 'sgif':
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
             						const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
-            						const media = await angga.downloadAndSaveMediaMessage(encmedia)
+            						const media = await botol.downloadAndSaveMediaMessage(encmedia)
             						ran = getRandom('.webp')
             						await ffmpeg(`./${media}`)
             							.input(media)
@@ -604,7 +600,7 @@ ${readmore}
             								exec(`webpmux -set exif ${addMetadata(`${config.author}`, `${config.packname}`)} ${ran} -o ${ran}`, async (error) => {
             									if (error) return reply(mess.error.stick)
             									//await costum(fs.readFileSync(ran), sticker, FarhanGans, ` ~ Nihh Udah Jadi Stikernya`)
-            									angga.sendMessage(from, fs.readFileSync(ran), MessageType.sticker, { quoted: mek })
+            									botol.sendMessage(from, fs.readFileSync(ran), MessageType.sticker, { quoted: mek })
             									fs.unlinkSync(media)
             									fs.unlinkSync(ran)
             								})
@@ -614,7 +610,7 @@ ${readmore}
             							.save(ran)
                                                         } else if ((isMedia && mek.message.videoMessage.seconds < 11 || isQuotedVideo && mek.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage.seconds < 11) && args.length == 0) {
             						const encmedia = isQuotedVideo ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
-            						const media = await angga.downloadAndSaveMediaMessage(encmedia)
+            						const media = await botol.downloadAndSaveMediaMessage(encmedia)
             						ran = getRandom('.webp')
             						reply(mess.wait)
             						await ffmpeg(`./${media}`)
@@ -633,7 +629,7 @@ ${readmore}
             								exec(`webpmux -set exif ${addMetadata(`${config.author}`, `${config.packname}`)} ${ran} -o ${ran}`, async (error) => {
             									if (error) return reply(mess.error.stick)
             									//await costum(fs.readFileSync(ran), sticker, FarhanGans, `~ Nih Dah Jadi Gif Stikernya`)
-            								angga.sendMessage(from, fs.readFileSync(ran), MessageType.sticker, { quoted: mek })
+            								botol.sendMessage(from, fs.readFileSync(ran), MessageType.sticker, { quoted: mek })
             									fs.unlinkSync(media)
             									fs.unlinkSync(ran)
             								})
@@ -942,3 +938,5 @@ ${readmore}
 		// console.log(e)
 	}
 })
+}
+starts()
