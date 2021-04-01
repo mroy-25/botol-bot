@@ -1,4 +1,4 @@
-h2 align="center">Botol Wa Bot</h2>
+<h2 align="center">Botol Wa Bot</h2>
 <p align="center">
 <img src="https://telegra.ph/file/5b3fd9af601cc44918601.jpg" width="550" height="250"/>
 </p>
@@ -11,6 +11,17 @@ h2 align="center">Botol Wa Bot</h2>
 <p align="center">
 Just for fun 😎
 </p>
+
+## Ganti nomor owner
+[Ganti nomor owner](https://github.com/progsysdriver/botol-bot/blob/c1a1e339ad58ce0a5f1edb9082b968cbbfd7c6b3/index.js#L81) 62xxxxxxxxxxxx@s.whatsapp.net
+
+## Ganti author & packname bila perlu di config.json
+```sh
+{
+  "author": "@anggasurya03",
+  "packname": "BOTOL-BOT"
+}
+```
 
 ## Cloning
 ```sh
@@ -34,4 +45,4 @@ node index.js
 ## Terima Kasih
 - [MhankBarBar](https://github.com/github.com/MhankBarBar)
 - [Adiwajshing](https://github.com/adiwajshing)
-- [Angga Surya](https://github.co./suryapardana)
+- [Angga Surya](https://github.com/suryapardana)

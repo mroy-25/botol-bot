@@ -22,7 +22,6 @@ exports.Help = (prefix) => {
 19. ${prefix}delete -> Hapus pesan (personal/private atau grup)
 20. ${prefix}hilih -> ih gisiki giliy
 21. ${prefix}fto -> Forward to
-22. ${prefix}grup -> Group Management
 23. ${prefix}kontag -> Kontak dengan Tag
 24. ${prefix}kontak -> Kirim Kontak
 25. ${prefix}tomp3 -> Video jadi mp3

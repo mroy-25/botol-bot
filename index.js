@@ -20,6 +20,10 @@ const figlet = require('figlet')
 const lolcatjs = require('lolcatjs')
 const phoneNum = require('awesome-phonenumber')
 const { menuId } = require('./teks')
+const { exif } = require('./lib/exif')
+
+/***************D A T A B A S E****************/
+const config = JSON.parse(fs.readFileSync('./config.json'))
 
 prefix = '.'
 fake = 'Botol Bot'
@@ -37,6 +41,39 @@ function kyun(seconds){
     //return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds)
     return `• Runtime\n${pad(hours)}H ${pad(minutes)}M ${pad(seconds)}S`
 }
+
+function addMetadata(packname, author) {
+	if (!packname) packname = `${config.packname}`; if (!author) author = ` ${config.author}`;
+	author = author.replace(/[^a-zA-Z0-9]/g, '');
+	let name = `${author}_${packname}`
+
+	if (fs.existsSync(`./src/sticker/${name}.exif`)) {
+		return `./src/sticker/${name}.exif`
+	}
+	const json = {
+		"sticker-pack-name": packname,
+		"sticker-pack-publisher": author,
+	}
+
+	const littleEndian = Buffer.from([0x49, 0x49, 0x2A, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01, 0x00, 0x41, 0x57, 0x07, 0x00])
+	const bytes = [0x00, 0x00, 0x16, 0x00, 0x00, 0x00]
+
+	let len = JSON.stringify(json).length
+	let last
+
+	if (len > 256) {
+		len = len - 256
+		bytes.unshift(0x01)
+	} else {
+		bytes.unshift(0x00)
+	}
+
+	if (len < 16) {
+		last = len.toString(16)
+		last = "0" + len
+	} else {
+		last = len.toString(16)
+	}
 
 async function starts() {
     const botol = new WAConnection()
@@ -302,57 +339,67 @@ async function starts() {
                     reply('reply stickernya bang')
                 }
                 break
-                case 'stik':
+                case 's':
                 case 'stiker':
                 case 'sticker':
+                case 'stickergif':
+                case 'sgif':
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
-                        const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-                        const media = await botol.downloadAndSaveMediaMessage(encmedia)
-                        ran = getRandom('.webp')
-                        await ffmpeg(`./${media}`)
-                            .input(media)
-                            .on('start', function (cmd) {
-                                console.log(`Started : ${cmd}`)
-                            })
-                            .on('error', function (err) {
-                                console.log(`Error : ${err}`)
-                                fs.unlinkSync(media)
-                                reply(mess.error.stick)
-                            })
-                            .on('end', function () {
-                                console.log('Finish')
-                                botol.sendMessage(from, fs.readFileSync(ran), sticker, {quoted: mek})
-                                fs.unlinkSync(media)
-                                fs.unlinkSync(ran)
-                            })
-                            .addOutputOptions([`-vcodec`,`libwebp`,`-vf`,`scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`])
-                            .toFormat('webp')
-                            .save(ran)
-						} else if ((isMedia && mek.message.videoMessage.seconds < 11 || isQuotedVideo && mek.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage.seconds < 11) && args.length == 0) {
-                            const encmedia = isQuotedVideo ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-                            const media = await botol.downloadAndSaveMediaMessage(encmedia)
-                            ran = getRandom('.webp')
-                            reply('bentar nyet')
-                            await ffmpeg(`./${media}`)
-                            .inputFormat(media.split('.')[1])
-                            .on('start', function (cmd) {
-                                console.log(`Started: ${cmd}`)
-                            })
-                            .on('error', function (err) {
-                                console.log(`Error: ${err}`)
-                                fs.unlinkSync(media)
-                                tipe = media.endsWith('.mp4') ? 'video' : 'gif'
-                                reply(`Gagal mengkonversi ${tipe} menjadi sticker`)
-                            })
-                            .on('end', function () {
-                                console.log('Finish')
-                                botol.sendMessage(from, fs.readFileSync(ran), sticker, { quoted: mek })
-                                fs.unlinkSync(media)
-                                fs.unlinkSync(ran)
-                            })
-                            .addOutputOptions([`-vcodec`,`libwebp`,`-vf`,`scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`])
-                            .toFormat('webp')
-                            .save(ran)
+            						const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
+            						const media = await angga.downloadAndSaveMediaMessage(encmedia)
+            						ran = getRandom('.webp')
+            						await ffmpeg(`./${media}`)
+            							.input(media)
+            							.on('start', function (cmd) {
+            								console.log(`Started : ${cmd}`)
+            							})
+            							.on('error', function (err) {
+            								console.log(`Error : ${err}`)
+            								fs.unlinkSync(media)
+            								reply(mess.error.stick)
+            							})
+            							.on('end', function () {
+            								console.log('Finish')
+            								exec(`webpmux -set exif ${addMetadata(`${config.author}`, `${config.packname}`)} ${ran} -o ${ran}`, async (error) => {
+            									if (error) return reply(mess.error.stick)
+            									//await costum(fs.readFileSync(ran), sticker, FarhanGans, ` ~ Nihh Udah Jadi Stikernya`)
+            									angga.sendMessage(from, fs.readFileSync(ran), MessageType.sticker, { quoted: mek })
+            									fs.unlinkSync(media)
+            									fs.unlinkSync(ran)
+            								})
+            							})
+            							.addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`])
+            							.toFormat('webp')
+            							.save(ran)
+            } else if ((isMedia && mek.message.videoMessage.seconds < 11 || isQuotedVideo && mek.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage.seconds < 11) && args.length == 0) {
+            						const encmedia = isQuotedVideo ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
+            						const media = await angga.downloadAndSaveMediaMessage(encmedia)
+            						ran = getRandom('.webp')
+            						reply(mess.wait)
+            						await ffmpeg(`./${media}`)
+            							.inputFormat(media.split('.')[1])
+            							.on('start', function (cmd) {
+            								console.log(`Started : ${cmd}`)
+            							})
+            							.on('error', function (err) {
+            								console.log(`Error : ${err}`)
+            								fs.unlinkSync(media)
+            								tipe = media.endsWith('.mp4') ? 'video' : 'gif'
+            								reply(`❌ Gagal, pada saat mengkonversi ${tipe} ke stiker`)
+            							})
+            							.on('end', function () {
+            								console.log('Finish')
+            								exec(`webpmux -set exif ${addMetadata(`${config.author}`, `${config.packname}`)} ${ran} -o ${ran}`, async (error) => {
+            									if (error) return reply(mess.error.stick)
+            									//await costum(fs.readFileSync(ran), sticker, FarhanGans, `~ Nih Dah Jadi Gif Stikernya`)
+            								angga.sendMessage(from, fs.readFileSync(ran), MessageType.sticker, { quoted: mek })
+            									fs.unlinkSync(media)
+            									fs.unlinkSync(ran)
+            								})
+            							})
+              .addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`])
+            							.toFormat('webp')
+            							.save(ran)
                         } else {
                             reply('Tidak ada video/gif/gambar yang akan dijadikan stiker!')
                         }
@@ -492,26 +539,6 @@ async function starts() {
                     imni = hilih(entah)
                     reply(imni)
                     break
-                case 'grup':
-                    case 'group':
-                        if (!isGroup) return
-                        if (args.length == 0) return reply('Masukan parameter _<setting>_ | _<yes/no>_')
-                        if (args[0] === 'pesan' && arg.split('|')[1] === 'yes') {
-                            botol.groupSettingChange(from, GroupSettingChange.messageSend, true)
-                            reply('*Berhasil*')
-                        } else if ((args[0] === 'egrup' || args[0] === 'egroup') && arg.split('|')[1] === 'yes') {
-                            botol.groupSettingChange(from, GroupSettingChange.settingsChange, true)
-                            reply('*Berhasil*')
-                        } else if (args[0] === 'pesan' && arg.split('|')[1] === 'no') {
-                            botol.groupSettingChange(from, GroupSettingChange.messageSend, false)
-                            reply('*Berhasil*')
-                        } else if ((args[0] === 'egrup' || args[0] === 'egroup') && arg.split('|')[1] === 'no') {
-                            botol.groupSettingChange(from, GroupSettingChange.settingsChange, false)
-                            reply('*Berhasil*')
-                        } else {
-                            reply('_*Parameter Setting*_\n1. pesan\n2. egrup')
-                        }
-                        break
                 case 'kontag':
                     entah = args[0]
                     if (isNaN(entah)) return reply('Invalid phone number');
@@ -562,6 +589,59 @@ async function starts() {
                         })
                     }
                     break
+                  case 'thuglife':
+        					var imgbb = require('imgbb-uploader')
+        					if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
+        						ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
+        						owgi = await botol.downloadAndSaveMediaMessage(ger)
+        						anu = await imgbb("3b8594f4cb11895f4084291bc655e510", owgi)
+        						teks = `${anu.display_url}`
+        						ranp = getRandom('.gif')
+        						rano = getRandom('.webp')
+        						anu2 = `http://zekais-api.herokuapp.com/thuglife?url=${teks}`
+        						exec(`wget ${anu2} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps=fps=20 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${rano}`, (err) => {
+        							fs.unlinkSync(ranp)
+        							if (err) return reply(`Error: ${err}`)
+        							exec(`webpmux -set exif ${addMetadata(`${config.author}`, `${config.packname}`)} ${rano} -o ${rano}`, async (error) => {
+        								if (error) return reply(`Error: ${error}`)
+        								botol.sendMessage(from, fs.readFileSync(rano), sticker, { quoted: mek })
+        								fs.unlinkSync(rano)
+        							})
+        						})
+        					} else {
+        						reply('Gunakan foto!')
+        					}
+        					break
+        				case 'tobecontinue':
+        					var imgbb = require('imgbb-uploader')
+        					if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
+        						ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
+        						owgi = await botol.downloadAndSaveMediaMessage(ger)
+        						anu = await imgbb("3b8594f4cb11895f4084291bc655e510", owgi)
+        						teks = `${anu.display_url}`
+        						ranp = getRandom('.gif')
+        						rano = getRandom('.webp')
+        						anu2 = `http://zekais-api.herokuapp.com/tobecontinue?url=${teks}`
+        						exec(`wget ${anu2} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps=fps=20 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${rano}`, (err) => {
+        							fs.unlinkSync(ranp)
+        							if (err) return reply(`Error: ${err}`)
+        							exec(`webpmux -set exif ${addMetadata(`${config.author}`, `${config.packname}`)} ${rano} -o ${rano}`, async (error) => {
+        								if (error) return reply(`Error: ${error}`)
+        								botol.sendMessage(from, fs.readFileSync(rano), sticker, { quoted: mek })
+        								fs.unlinkSync(rano)
+        							})
+        						})
+        					} else {
+        						reply('Gunakan foto!')
+        					}
+        					break
+        				case 'ppcouple':
+        					anu = await fetchJson('https://lindow-api.herokuapp.com/api/ppcouple?apikey=megacantik')
+        					cwok = await getBuffer(anu.result.male)
+        					botol.sendMessage(from, cwok, MessageType.image, { caption: 'Cowok', quoted: mek })
+        					cwek = await getBuffer(anu.result.female)
+        					botol.sendMessage(from, cwek, MessageType.image, { caption: 'Cewek', quoted: mek })
+        					break
             default:
                 }
         } catch(err) {
