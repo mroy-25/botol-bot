@@ -1,45 +1,56 @@
 {
-  "name": "Botol-bot",
-  "version": "1.0.0",
-  "description": "Thanks to Mhankbarbar & FaizBastomi",
+  "name": "BOTOL-BOT",
+  "version": "1.2.0",
+  "description": "HAVE FUN EVERYBODY",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+  "directories": {
+    "lib": "lib"
   },
-  "author": "Angga Surya",
+  "dependencies": {
+    "@adiwajshing/baileys": "^3.3.0",
+    "async": "^2.4.1",
+    "axios": "^0.21.1",
+    "cfonts": "^2.9.1",
+    "dotenv": "^8.2.0",
+    "escape-string-regexp": "^1.0.5",
+    "exif": "^0.6.0",
+    "fake-useragent": "^1.0.1",
+    "fluent-ffmpeg": "^2.1.2",
+    "fs-extra": "^9.1.0",
+    "image-to-base64": "^2.1.1",
+    "imgbb-uploader": "^1.3.0",
+    "moment-timezone": "^0.5.32",
+    "multistream": "^2.1.0",
+    "needle": "^2.5.2",
+    "node-fetch": "^2.6.1",
+    "node-gtts": "^2.0.2",
+    "node-superfetch": "^0.1.11",
+    "node-tesseract-ocr": "^2.0.0",
+    "parse-ms": "^2.1.0",
+    "performance-now": "^2.1.0",
+    "qrcode-terminal": "^0.12.0",
+    "remove.bg": "^1.3.0",
+    "request": "^2.81.0",
+    "spinnies": "^0.5.1",
+    "supervisor": "^0.12.0",
+    "tiktok-scraper": "^1.4.7",
+    "ytdl-core": "^4.4.0"
+  },
+  "scripts": {
+    "start": "node index",
+    "test": "supervisor index"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/progsysdriver/botol-bot.git"
+    "url": "git+https://github.com/suryapardana"
   },
+  "keywords": [
+    "Botol Bot"
+  ],
+  "author": "Angga",
+  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/progsysdriver/botol-bot/issues"
+    "url": "https://github.com/suryapardana"
   },
-  "homepage": "https://github.com/progsysdriver/botol-bot",
-  "keywords": [],
-  "license": "MIT",
-  "dependencies": {
-    "@adiwajshing/baileys": "github:adiwajshing/baileys",
-    "@vitalets/google-translate-api": "^5.1.0",
-    "awesome-phonenumber": "^2.47.0",
-    "axios": "^0.21.1",
-    "chalk": "^4.1.0",
-    "figlet": "^1.5.0",
-    "file-type": "^16.2.0",
-    "fluent-ffmpeg": "^2.1.2",
-    "form-data": "github:form-data/form-data",
-    "fs-extra": "^9.1.0",
-    "lolcatjs": "^2.4.0",
-    "moment-timezone": "^0.5.33",
-    "node-fetch": "^2.6.1"
-  },
-  "devDependencies": {
-    "babel-eslint": "^10.1.0",
-    "eslint": "^7.19.0",
-    "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.1.0"
-  }
+  "homepage": "https://github.com/suryapardana"
 }

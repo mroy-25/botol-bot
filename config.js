@@ -1,4 +1,5 @@
 {
+  "VhtearKey": "YOUR_APIKEY",
   "author": "@anggasurya03",
   "packname": "BOTOL-BOT"
 }
