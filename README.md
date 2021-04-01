@@ -13,15 +13,25 @@ Just for fun 😎
 </p>
 
 ## Ganti nomor owner
-[Ganti nomor owner](https://github.com/progsysdriver/botol-bot/blob/c1a1e339ad58ce0a5f1edb9082b968cbbfd7c6b3/index.js#L81) 62xxxxxxxxxxxx@s.whatsapp.net
+[Owner Number](https://github.com/progsysdriver/botol-bot/blob/c1a1e339ad58ce0a5f1edb9082b968cbbfd7c6b3/index.js#L118)
+ 62xxxxxxxxxxxx@s.whatsapp.net
 
-## Ganti author & packname bila perlu di config.json
+## Ganti author & packname bila perlu di [config.json](https://github.com/progsysdriver/botol-bot/blob/main/config.json)
 ```sh
 {
   "author": "@anggasurya03",
   "packname": "BOTOL-BOT"
 }
 ```
+
+## Ganti prefix, Fake reply, Target fake, Gambar
+```sh
+prefix = '.'
+fake = 'Botol Bot'
+numbernya = '0'
+let gambar64 = "" || fs.readFileSync('./media/images/9739.png')
+```
+Di [index.js](https://github.com/progsysdriver/botol-bot/blob/main/index.js#L28)
 
 ## Cloning
 ```sh
@@ -41,8 +51,49 @@ npm install
 ```sh
 node index.js
 ```
+## Fitur dari bot ini
+
+| ketersediaan  |  Fitur |
+| :-----------: | :----: |
+|       ☑      | hidetag |
+|       ☑      | Forward Message |
+|       ☑      | Eval |
+|       ☑      | Ping |
+|       ☑      | Set number |
+|       ☑      | Set Reply |
+|       ☑      | Setprefix  |
+|       ☑      | Sticker To image  |
+|       ☑      | Make stiker  |
+|       ☑      | Random meme |
+|       ☑      | Image to url  |
+|       ☑      | Make meme |
+|       ☑      | Tag all  |
+|       ☑      | Tag all v2 |
+|       ☑      | Tag all v3  |
+|       ☑      | What anime? |
+|       ☑      | Set Whatsapp name bot  |
+|       ☑      | Set Whatsapp profile bot
+|       ☑      | Delete the message |
+|       ☑      | hilih |
+|       ☑      | Forward to  |
+|       ☑      | Group management  |
+|       ☑      | Contact tag  |
+|       ☑      | Video to mp3  |
+|       ☑      | Translate  |
+|       ☑      | Sticker Thug life  |
+|       ☑      | Sticker To be continued |
+|       ☑      | Photo Couple  |
 
 ## Terima Kasih
 - [MhankBarBar](https://github.com/github.com/MhankBarBar)
 - [Adiwajshing](https://github.com/adiwajshing)
 - [Angga Surya](https://github.com/suryapardana)
+- [Nabil Azdian](https://github.com/NabilAzdian)
+
+
+## Donation
+- Trakteer [Visit link](https://trakteer.id/anggasurya)
+- Dana 6287891518799
+- Gopay 6287891518799
+- Pulsa 6287891518799
+- Join group [Botol Bot](https://chat.whatsapp.com/CZwRj7oCIzn59Fxa9GNTFA)
