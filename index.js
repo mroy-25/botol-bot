@@ -151,7 +151,8 @@ botol.on('chat-update', async (mek) => {
 			global.blocked
 			const content = JSON.stringify(mek.message)
 			const from = mek.key.remoteJid
-                        const pushname = mek.key.fromMe ? botol.user.name : conts.notify || conts.vname || conts.name || '-'
+			const conts = geps.key.fromMe ? angga.user.jid : angga.contacts[sender] || { notify: jid.replace(/@.+/, '') }
+      const pushname = mek.key.fromMe ? botol.user.name : conts.notify || conts.vname || conts.name || '-'
 			const type = Object.keys(mek.message)[0]
 			const { text, extendedText, contact, location, liveLocation, image, video, sticker, document, audio, product } = MessageType
 			body = (type === 'conversation' && mek.message.conversation.startsWith(prefix)) ? mek.message.conversation : (type == 'imageMessage') && mek.message.imageMessage.caption.startsWith(prefix) ? mek.message.imageMessage.caption : (type == 'videoMessage') && mek.message.videoMessage.caption.startsWith(prefix) ? mek.message.videoMessage.caption : (type == 'extendedTextMessage') && mek.message.extendedTextMessage.text.startsWith(prefix) ? mek.message.extendedTextMessage.text : ''
@@ -210,7 +211,7 @@ botol.on('chat-update', async (mek) => {
 				if (!packname) packname = `${config.packname}`; if (!author) author = `${config.author}`;	
 				author = author.replace(/[^a-zA-Z0-9]/g, '');	
 				let name = `${author}_${packname}`
-				if (fs.existsSync(`./src/stickers/${name}.exif`)) return `./src/stickers/${name}.exif`
+				if (fs.existsSync(`./src/sticker/${name}.exif`)) return `./src/sticker/${name}.exif`
 				const json = {	
 					"sticker-pack-name": packname,
 					"sticker-pack-publisher": author,
@@ -241,8 +242,8 @@ botol.on('chat-update', async (mek) => {
 
 				const buffer = Buffer.concat([littleEndian, buf2, buf3, buf4])	
 
-				fs.writeFile(`./src/stickers/${name}.exif`, buffer, (err) => {	
-					return `./src/stickers/${name}.exif`	
+				fs.writeFile(`./src/sticker/${name}.exif`, buffer, (err) => {	
+					return `./src/sticker/${name}.exif`	
 				})	
 
 			}
@@ -577,11 +578,11 @@ ${readmore}
                 }
                 break
                 case 's':
-                case 'stiker':
-                case 'sticker':
                 case 'stickergif':
                 case 'sgif':
-                    if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
+                    case 'stiker':
+            				case 'sticker':
+            					if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
             						const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
             						const media = await botol.downloadAndSaveMediaMessage(encmedia)
             						ran = getRandom('.webp')
@@ -598,8 +599,6 @@ ${readmore}
             							.on('end', function () {
             								console.log('Finish')
             								exec(`webpmux -set exif ${addMetadata(`${config.author}`, `${config.packname}`)} ${ran} -o ${ran}`, async (error) => {
-            									if (error) return reply(mess.error.stick)
-            									//await costum(fs.readFileSync(ran), sticker, FarhanGans, ` ~ Nihh Udah Jadi Stikernya`)
             									botol.sendMessage(from, fs.readFileSync(ran), MessageType.sticker, { quoted: mek })
             									fs.unlinkSync(media)
             									fs.unlinkSync(ran)
@@ -608,7 +607,7 @@ ${readmore}
             							.addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`])
             							.toFormat('webp')
             							.save(ran)
-                                                        } else if ((isMedia && mek.message.videoMessage.seconds < 11 || isQuotedVideo && mek.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage.seconds < 11) && args.length == 0) {
+            					} else if ((isMedia && mek.message.videoMessage.seconds < 11 || isQuotedVideo && mek.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage.seconds < 11) && args.length == 0) {
             						const encmedia = isQuotedVideo ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
             						const media = await botol.downloadAndSaveMediaMessage(encmedia)
             						ran = getRandom('.webp')
@@ -628,18 +627,41 @@ ${readmore}
             								console.log('Finish')
             								exec(`webpmux -set exif ${addMetadata(`${config.author}`, `${config.packname}`)} ${ran} -o ${ran}`, async (error) => {
             									if (error) return reply(mess.error.stick)
-            									//await costum(fs.readFileSync(ran), sticker, FarhanGans, `~ Nih Dah Jadi Gif Stikernya`)
             								botol.sendMessage(from, fs.readFileSync(ran), MessageType.sticker, { quoted: mek })
             									fs.unlinkSync(media)
             									fs.unlinkSync(ran)
             								})
             							})
-              .addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`])
+            							.addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`])
             							.toFormat('webp')
             							.save(ran)
-                        } else {
-                            reply('Tidak ada video/gif/gambar yang akan dijadikan stiker!')
-                        }
+            					} else if ((isMedia || isQuotedImage) && args[0] == 'nobg') {
+            						const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
+            						const media = await botol.downloadAndSaveMediaMessage(encmedia)
+            						ranw = getRandom('.webp')
+            						ranp = getRandom('.png')
+            						reply(mess.wait)
+            						keyrmbg = config.VhtearKey
+            						await removeBackgroundFromImageFile({ path: media, apiKey: keyrmbg, size: 'auto', type: 'auto', ranp }).then(res => {
+            							fs.unlinkSync(media)
+            							let bufferir9vn5 = Buffer.from(res.base64img, 'base64')
+            							fs.writeFileSync(ranp, bufferir9vn5, (err) => {
+            								if (err) return reply('Gagal, Terjadi kesalahan, silahkan coba beberapa saat lagi.')
+            							})
+            							exec(`ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps=fps=20 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${ranw}`, (err) => {
+            								fs.unlinkSync(ranp)
+            								if (err) return reply(mess.error.stick)
+            								exec(`webpmux -set exif ${addMetadata(`${config.author}`, authorname)} ${ranw} -o ${ranw}`, async (error) => {
+            									if (error) return reply(mess.error.stick)
+            									botol.sendMessage(from, fs.readFileSync(ranw), MessageType.sticker, { quoted: mek })
+            									fs.unlinkSync(ranw)
+            								})
+            							})
+            						})
+            					} else {
+            						reply(`Kirim gambar dengan caption ${prefix}sticker atau tag gambar yang sudah dikirim`)
+            					}
+					break
                 break
                 case 'meme':
                     reply('Bentar om, lagi nyari...')
